@@ -1,3 +1,4 @@
+import time
 import pygame
 import random
 
@@ -9,6 +10,10 @@ BOARD_SIZE = 5
 EMPTY = 0
 PLAYER_1 = 1
 PLAYER_2 = 2
+
+#colors
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
 
 class GameTree:
     def __init__(self, value, board, children=None):
@@ -26,9 +31,14 @@ def visualize_board(board):
     """Visualizes the game board"""
     pass
 
-def visualize_game_tree(root):
+def visualize_game_tree(surface, root, start_x, start_y):
     """Takes in a game tree and visualizes it (show value of each node)"""
-    pass
+    border = pygame.draw.circle(surface, BLACK, (300, 300), 20)
+    circle = pygame.draw.circle(surface, WHITE, (300, 300), 18)
+    arial = pygame.font.SysFont("Arial", 18)
+    text_surface = arial.render("11", False, BLACK)
+    surface.blit(text_surface, (290, 290))
+
 
 def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
@@ -70,10 +80,29 @@ def minimax(tree, is_max):
     return tree.value
 
 def main():
-    state = 0
-    tree = build_tree(state, 3, "simple")
-    print("minimax results:")
-    print(minimax(tree, True))
+    pygame.font.init()
+    surface = pygame.display.set_mode() #initializes a window
+
+
+    surface.fill(WHITE) #sets background color to white
+
+    pygame.display.flip() #displays the window
+
+    #run loop, ends program when user closes window
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        visualize_game_tree(surface, None, 0, 0)
+        pygame.display.flip() #update visual changes to display
+    pygame.display.quit()
+
+
+    #state = 0
+    #tree = build_tree(state, 3, "simple")
+    #print("minimax results:")
+    #print(minimax(tree, True))
 
 
 if __name__ == "__main__":
