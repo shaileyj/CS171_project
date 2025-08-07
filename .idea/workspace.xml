@@ -4,7 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06c5fe7c-9c8d-48cd-96e3-ede16bb022d9" name="Changes" comment="game feature run game" />
+    <list default="true" id="06c5fe7c-9c8d-48cd-96e3-ede16bb022d9" name="Changes" comment="game feature run game">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tile-capture-game.py" beforeDir="false" afterPath="$PROJECT_DIR$/tile-capture-game.py" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +89,15 @@
       <option name="project" value="LOCAL" />
       <updated>1754602567481</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="game feature run game">
+      <option name="closed" value="true" />
+      <created>1754602709326</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1754602709326</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
@@ -99,12 +110,12 @@
       <breakpoints>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tile-capture-game.py</url>
-          <line>24</line>
+          <line>23</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
           <url>file://$PROJECT_DIR$/tile-capture-game.py</url>
-          <line>140</line>
+          <line>139</line>
           <option name="timeStamp" value="2" />
         </line-breakpoint>
       </breakpoints>

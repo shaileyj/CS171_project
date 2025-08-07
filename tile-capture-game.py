@@ -1,5 +1,4 @@
 import pygame
-import math
 import sys
 
 #init game
@@ -41,7 +40,7 @@ class TileCaptureGame:
 
     def get_surrounding_positions(self, x, y):
         surrounding_positions = []
-        for dr in [-1,0,1]: #delta row: up/same/dowm
+        for dr in [-1,0,1]: #delta row: up/same/down
             for dc in [-1,0,1]: #delta column: left/same/right
                 # if dr == 0 and dc == 0:
                 #     continue
@@ -140,12 +139,19 @@ class TileCaptureGame:
 
                 color = self.get_tile_color(row, col)
                 pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
-                pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
+                # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
 
                 if (row, col) in self.valid_move:
                     center_x = x + TILE_SIZE//2
                     center_y = y + TILE_SIZE//2
                     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
+        #grid
+        for col in range(BOARD_SIZE+1): #vertical
+            x = BOARD_OFFSET + col * TILE_SIZE
+            pygame.draw.line(self.screen, BLACK,(x, BOARD_OFFSET),(x,BOARD_OFFSET+BOARD_SIZE*TILE_SIZE),2)
+        for row in range(BOARD_SIZE + 1):  # horizontal
+            y = BOARD_OFFSET + row * TILE_SIZE
+            pygame.draw.line(self.screen, BLACK, (BOARD_OFFSET, y), (BOARD_OFFSET + BOARD_SIZE * TILE_SIZE, y), 2)
 
         player_text = f"Player {self.current_player}'s Turn"
         player_color = RED if self.current_player == 1 else BLUE
@@ -194,6 +200,7 @@ class TileCaptureGame:
 
         pygame.quit()
         sys.exit()
+
 if __name__ == "__main__":
     game = TileCaptureGame()
     game.run()
