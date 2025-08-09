@@ -4,7 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="06c5fe7c-9c8d-48cd-96e3-ede16bb022d9" name="Changes" comment="game feature run game">
+    <list default="true" id="06c5fe7c-9c8d-48cd-96e3-ede16bb022d9" name="Changes" comment="game feature add grid">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/tile-capture-game.py" beforeDir="false" afterPath="$PROJECT_DIR$/tile-capture-game.py" afterDir="false" />
     </list>
@@ -97,28 +97,21 @@
       <option name="project" value="LOCAL" />
       <updated>1754602709326</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="game feature add grid">
+      <option name="closed" value="true" />
+      <created>1754605088000</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1754605088000</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="game feature get move" />
     <MESSAGE value="game feature run game" />
-    <option name="LAST_COMMIT_MESSAGE" value="game feature run game" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tile-capture-game.py</url>
-          <line>23</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/tile-capture-game.py</url>
-          <line>139</line>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <MESSAGE value="game feature add grid" />
+    <option name="LAST_COMMIT_MESSAGE" value="game feature add grid" />
   </component>
 </project>

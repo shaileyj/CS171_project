@@ -38,16 +38,71 @@ class TileCaptureGame:
         self.player1_score = 0
         self.player2_score = 0
 
-    def get_surrounding_positions(self, x, y):
-        surrounding_positions = []
-        for dr in [-1,0,1]: #delta row: up/same/down
-            for dc in [-1,0,1]: #delta column: left/same/right
-                # if dr == 0 and dc == 0:
-                #     continue
-                new_row, new_col = x + dr, y + dc
-                if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
-                    surrounding_positions .append((new_row, new_col))
-        return surrounding_positions
+        #track moves
+        self.player1_moves = []
+        self.player2_moves = []
+        self.player1_valid_moves = set()
+        self.player2_valid_moves = set()
+
+        # Initialize valid moves for both players
+        self.update_all_valid_moves()
+
+    def update_all_valid_moves(self):
+        """Update valid moves for both players"""
+        self.update_player_valid_moves(1)
+        self.update_player_valid_moves(2)
+
+    def update_player_valid_moves(self, player):
+        """Update valid moves for a specific player"""
+        valid_moves = set()
+        player_moves = self.player1_moves if player == 1 else self.player2_moves
+
+        # Check if board is completely empty
+        board_empty = all(self.board[row][col] is None
+                          for row in range(BOARD_SIZE)
+                          for col in range(BOARD_SIZE))
+
+        if board_empty:
+            # First move of the game - all tiles are valid
+            for row in range(BOARD_SIZE):
+                for col in range(BOARD_SIZE):
+                    valid_moves.add((row, col))
+        elif len(player_moves) == 0:
+            # This player's first move - can place anywhere empty
+            for row in range(BOARD_SIZE):
+                for col in range(BOARD_SIZE):
+                    if self.board[row][col] is None:
+                        valid_moves.add((row, col))
+        else:
+            # Find all adjacent positions to ALL of this player's existing tiles
+            for move_row, move_col in player_moves:
+                # Only consider tiles that are still owned by this player
+                if self.board[move_row][move_col] == player:
+                    adjacent = self.get_adjacent_positions(move_row, move_col)
+                    for adj_row, adj_col in adjacent:
+                        if self.board[adj_row][adj_col] is None:
+                            valid_moves.add((adj_row, adj_col))
+
+        # Update the appropriate valid moves set
+        if player == 1:
+            self.player1_valid_moves = valid_moves
+        else:
+            self.player2_valid_moves = valid_moves
+
+    # def get_surrounding_positions(self, x, y):
+    #     surrounding_positions = []
+    #     for dr in [-1,0,1]: #delta row: up/same/down
+    #         for dc in [-1,0,1]: #delta column: left/same/right
+    #             # if dr == 0 and dc == 0:
+    #             #     continue
+    #             new_row, new_col = x + dr, y + dc
+    #             if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
+    #                 surrounding_positions .append((new_row, new_col))
+    #     return surrounding_positions
+
+    def get_current_valid_moves(self):
+        """Get valid moves for the current player"""
+        return self.player1_valid_moves if self.current_player == 1 else self.player2_valid_moves
 
     def get_adjacent_positions(self, x, y):
         adjacent_positions =[]
@@ -59,57 +114,105 @@ class TileCaptureGame:
 
     def get_valid_moves(self):
         self.valid_move.clear()
-        if self.last_move is None:
+
+        board_empty = all(self.board[row][col] is None
+                      for row in range(BOARD_SIZE)
+                      for col in range(BOARD_SIZE))
+        if board_empty:
             #first tiles all valid
             for row in range(BOARD_SIZE):
                 for col in range(BOARD_SIZE):
                     self.valid_move.add((row, col))
 
         else:
-            last_row, last_col = self.last_move
-            adjacent = self.get_adjacent_positions(last_row, last_col)
+            current_player_moves = self.player1_moves if self.current_player == 1 else self.player2_moves
 
-            for row, col in adjacent:
-                if self.board[row][col] is None:
-                    self.valid_move.add((row, col))
+            if self.last_move is None:
+                for row in range(BOARD_SIZE):
+                    for col in range(BOARD_SIZE):
+                        if self.board[row][col] is None:
+                            self.valid_move.add((row, col))
+            else:
+                # Find all adjacent positions to ALL of this player's existing tiles
+                for move_row, move_col in current_player_moves:
+                    # Only consider tiles that are still owned by this player
+                    # (in case they were captured)
+                    if self.board[move_row][move_col] == self.current_player:
+                        adjacent = self.get_adjacent_positions(move_row, move_col)
+                        for adj_row, adj_col in adjacent:
+                            if self.board[adj_row][adj_col] is None:
+                                self.valid_move.add((adj_row, adj_col))
 
-    def count_surrounding_tile(self, x, y,player):
+    def count_adjacent_tile(self, x, y,player):
         count = 0
-        surrounding = self.get_surrounding_positions(x, y)
+        surrounding = self.get_adjacent_positions(x, y)
         for sr, sc in surrounding:
             if self.board[sr][sc] == player:
                 count += 1
         return count
 
-    def make_move(self,row,col):
-        if (row, col) not in self.valid_move:
+    def make_move(self, row, col):
+        current_valid_moves = self.get_current_valid_moves()
+
+        if (row, col) not in current_valid_moves:
+            print("Invalid move")
             return False
-        #place
+
+        # Place piece
         self.board[row][col] = self.current_player
         self.last_move = (row, col)
 
-        #check capture
+        # Add this move to the current player's move list
+        if self.current_player == 1:
+            self.player1_moves.append((row, col))
+        else:
+            self.player2_moves.append((row, col))
+
+        # Check capture
         self.check_captures(row, col)
 
-        #switch player
-        self.current_player = 3 - self.current_player
-
-        #update valid move for next player
-        self.get_valid_moves()
-
-        #check if game is over
-        if len(self.valid_move) == 0:
+        # Check if board is full
+        if self.is_board_full():
             self.game_over = True
             self.calculate_final_scores()
+            return True
+
+        # Switch player
+        self.current_player = 3 - self.current_player
+
+        # Update valid moves for both players
+        self.update_all_valid_moves()
+
+        # Check if current player has no valid moves
+        current_valid_moves = self.get_current_valid_moves()
+        if len(current_valid_moves) == 0:
+            # Check if other player has moves
+            other_player = 3 - self.current_player
+            other_valid_moves = self.player1_valid_moves if other_player == 1 else self.player2_valid_moves
+
+            if len(other_valid_moves) == 0:
+                # Neither player can move - game over
+                self.game_over = True
+                self.calculate_final_scores()
+            else:
+                # Skip to other player
+                print(f"Player {self.current_player} has no valid moves. Skipping turn.")
+                self.current_player = other_player
 
         return True
 
+    def is_board_full(self):
+        """Check if all tiles on the board are occupied"""
+        return all(self.board[row][col] is not None
+                   for row in range(BOARD_SIZE)
+                   for col in range(BOARD_SIZE))
+
     def check_captures(self, row, col):
-        surrounding = self.get_surrounding_positions(row, col)
+        surrounding = self.get_adjacent_positions(row, col)
         for sr, sc in surrounding:
             if self.board[sr][sc] is not None and self.board[sr][col] != self.current_player:
-                current_surrounding = self.count_surrounding_tile(sr, sc, self.current_player)
-                opponent_surrounding = self.count_surrounding_tile(sr, -sc, self.board[sr][sc])
+                current_surrounding = self.count_adjacent_tile(sr, sc, self.current_player)
+                opponent_surrounding = self.count_adjacent_tile(sr, -sc, self.board[sr][sc])
                 if current_surrounding > opponent_surrounding:
                     self.board[sr][sc] = self.current_player
 
@@ -119,10 +222,10 @@ class TileCaptureGame:
 
     def get_tile_color(self, row, col):
         if self.board[row][col] is None:
-            if (row,col) in self.valid_move:
-                return LIGHT_GRAY
-            else:
-                return WHITE
+            # if (row,col) in self.valid_move:
+            #     return LIGHT_GRAY
+            # else:
+            return WHITE
         elif self.board[row][col] == 1:
             return RED
         else:
@@ -130,6 +233,9 @@ class TileCaptureGame:
 
     def draw_board(self):
         self.screen.fill(WHITE)
+
+        # Get current player's valid moves
+        current_valid_moves = self.get_current_valid_moves()
 
         #tiles
         for row in range(BOARD_SIZE):
@@ -141,10 +247,10 @@ class TileCaptureGame:
                 pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
                 # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
 
-                if (row, col) in self.valid_move:
-                    center_x = x + TILE_SIZE//2
-                    center_y = y + TILE_SIZE//2
-                    pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
+                # if (row, col) in self.valid_move:
+                #     center_x = x + TILE_SIZE//2
+                #     center_y = y + TILE_SIZE//2
+                #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
         #grid
         for col in range(BOARD_SIZE+1): #vertical
             x = BOARD_OFFSET + col * TILE_SIZE
@@ -172,29 +278,58 @@ class TileCaptureGame:
             pygame.draw.rect(self.screen, WHITE, game_over_rect.inflate(20,20),2)
             self.screen.blit(game_over_surface, game_over_rect)
 
+    # def handle_click(self, pos):
+    #     if self.game_over:
+    #         return
+    #     x,y = pos
+    #     col = (x - BOARD_OFFSET)//TILE_SIZE
+    #     row = (y - BOARD_OFFSET) // TILE_SIZE
+    #
+    #     if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
+    #         self.make_move(row, col)
+
     def handle_click(self, pos):
         if self.game_over:
+            print("Game is over!")
             return
-        x,y = pos
-        col = (x - BOARD_OFFSET)//TILE_SIZE
-        row = (y - BOARD_OFFSET) // TILE_SIZE
 
+        x, y = pos
+        print(f"Click at position: ({x}, {y})")
+
+        # Calculate which tile was clicked
+        col = int( (x - BOARD_OFFSET) / TILE_SIZE)
+        row = int( (y - BOARD_OFFSET) / TILE_SIZE)
+        print(f"Calculated tile: row={row}, col={col}")
+
+        # Check if click is within board bounds
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
-            self.make_move(row, col)
+            print(f"Board state before: {self.board[row][col]}")
+
+            # Try to make the move
+            if self.make_move(row, col):
+                print(f"Move successful! Board state after: {self.board[row][col]}")
+                print(f"Current player now: {self.current_player}")
+            else:
+                print(f"Move failed - tile already occupied")
+        else:
+            print(f"Click outside board bounds")
 
     def run(self):
         running = True
+
         while running:
+            self.draw_board()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.handle_click(event.pos)
+                    # self.handle_click(event.pos)
+                    self.handle_click(pygame.mouse.get_pos())
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         self.__init__()
 
-            self.draw_board()
+            # self.draw_board()
             pygame.display.flip()
             self.clock.tick(60)
 
