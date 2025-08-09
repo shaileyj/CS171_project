@@ -14,12 +14,21 @@ PLAYER_2 = 2
 #colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+WIP = (255, 209, 248)
+CURR = (255, 110, 139)
+FIN = (156, 156, 156)
+
+
+#tree visualization
+TREE_Y_DIST = 64
+TREE_X_DIST = 128
 
 class GameTree:
     def __init__(self, value, board, children=None):
         self.value = value
         self.board = board
         self.children = []
+        self.color = WHITE
 
 def simple_heuristic(board):
     pass
@@ -31,14 +40,22 @@ def visualize_board(board):
     """Visualizes the game board"""
     pass
 
-def visualize_game_tree(surface, root, start_x, start_y):
-    """Takes in a game tree and visualizes it (show value of each node)"""
-    border = pygame.draw.circle(surface, BLACK, (300, 300), 20)
-    circle = pygame.draw.circle(surface, WHITE, (300, 300), 18)
-    arial = pygame.font.SysFont("Arial", 18)
-    text_surface = arial.render("11", False, BLACK)
-    surface.blit(text_surface, (290, 290))
+def visualize_node(surface, font, text, color, x, y):
+    border = pygame.draw.circle(surface, BLACK, (x, y), 20)
+    circle = pygame.draw.circle(surface, color, (x, y), 18)
+    if text != None:
+        text_surface = font.render(str(text), False, BLACK)
+        surface.blit(text_surface, (x-10, y-10))
 
+def visualize_game_tree(surface, root, start_x, start_y, x_dist, y_dist):
+    """Takes in a game tree and visualizes it (show value of each node)"""
+    arial = pygame.font.SysFont("Arial", 18)
+    visualize_node(surface, arial, root.value, root.color, start_x, start_y)
+    for i, child in enumerate(root.children):
+        x = (start_x - (x_dist//2)) + i * ((x_dist * 2)/len(root.children))
+        y = start_y + y_dist
+        pygame.draw.line(surface, BLACK, (start_x, start_y+20), (x, y-10))
+        visualize_game_tree(surface, child, x, y, x_dist//len(root.children), y_dist)
 
 def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
@@ -57,6 +74,7 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
             root.value = simple_heuristic(board)
         else:
            root.value = advanced_heuristic(board)
+        print(root.value)
         return root
 
     other = PLAYER_2 if player == PLAYER_1 else PLAYER_1
@@ -64,6 +82,7 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     #current player can take)
     for move in generate_moves(board, player):
         root.children.append(build_tree(move, depth-1, heuristic, other))
+    print(root.value)
     return root
 
 def minimax(tree, is_max):
@@ -79,30 +98,91 @@ def minimax(tree, is_max):
         tree.value = min(minimax(child, not is_max) for child in tree.children)
     return tree.value
 
+def one_step_minimax(tree, is_max, parent):
+    #base case updates parent node
+    if tree.value is not None and parent is not None:
+        if parent.value is None:
+            parent.value = tree.value
+        elif is_max:
+            parent.value = min(parent.value, tree.value)
+        else:
+            parent.value = max(parent.value, tree.value)
+        return [] #no recursive calls spawned
+    #max layer finds max of its children recursively
+    if is_max:
+        return [(child, not is_max, tree) for child in tree.children]
+    #min layer finds min of its children recursively
+    else:
+        return [(child, not is_max, tree) for child in tree.children]
+
+def show_minimax_step_and_update_stack(stack, prev, prev_par):
+    args = stack.pop()
+    return_args = one_step_minimax(*args)
+    if return_args:
+        stack.append(args)
+    if prev:
+        prev.color = WIP
+    if prev_par and args[2] and args[2] != prev_par:
+        prev_par.color = WIP
+    if args[2]:
+        args[2].color = CURR
+    args[0].color = CURR
+    stack.extend(return_args)
+    prev = args[0]
+    prev_par = args[2]
+    return prev, prev_par
+
 def main():
     pygame.font.init()
     surface = pygame.display.set_mode() #initializes a window
+    annotation_font = pygame.font.SysFont("Arial", 24)
 
-
+    tree = build_tree(None, 4, "simple")
+    tree.color = CURR
     surface.fill(WHITE) #sets background color to white
 
-    pygame.display.flip() #displays the window
-
+    stack = [(tree, True, None), ]
+    prev = None
+    prev_par = None
     #run loop, ends program when user closes window
     running = True
+    annotations = []
+    for i in range(100):
+        annotations.append(None)
+    annotations[0] = "this is a minimax tree"
+    counter = 0
+
+    start = 190
+    gap = 2**6
+    for i in range(4):
+        if i% 2 == 0:
+            text = "MAX"
+        else:
+            text = "MIN"
+        text_surface = annotation_font.render(text, False, BLACK)
+        surface.blit(text_surface, (40, start + gap * i))
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        visualize_game_tree(surface, None, 0, 0)
+            #if event.type == mouseclick, D key (WASD), -> key, spacebar
+                # everything below
+        prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
+        visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
+        if annotations[counter] != None:
+            text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
+            surface.blit(text_surface, (100, 450))
+        time.sleep(2)
         pygame.display.flip() #update visual changes to display
+        counter += 1
+
     pygame.display.quit()
 
 
     #state = 0
-    #tree = build_tree(state, 3, "simple")
-    #print("minimax results:")
-    #print(minimax(tree, True))
+
+    print("minimax results:")
+
 
 
 if __name__ == "__main__":
