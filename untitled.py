@@ -14,6 +14,10 @@ PLAYER_2 = 2
 #colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+WIP = (255, 209, 248)
+CURR = (255, 110, 139)
+FIN = (156, 156, 156)
+
 
 #tree visualization
 TREE_Y_DIST = 64
@@ -94,26 +98,84 @@ def minimax(tree, is_max):
         tree.value = min(minimax(child, not is_max) for child in tree.children)
     return tree.value
 
+def one_step_minimax(tree, is_max, parent):
+    #base case updates parent node
+    if tree.value is not None and parent is not None:
+        if parent.value is None:
+            parent.value = tree.value
+        elif is_max:
+            parent.value = min(parent.value, tree.value)
+        else:
+            parent.value = max(parent.value, tree.value)
+        return [] #no recursive calls spawned
+    #max layer finds max of its children recursively
+    if is_max:
+        return [(child, not is_max, tree) for child in tree.children]
+    #min layer finds min of its children recursively
+    else:
+        return [(child, not is_max, tree) for child in tree.children]
+
+def show_minimax_step_and_update_stack(stack, prev, prev_par):
+    args = stack.pop()
+    return_args = one_step_minimax(*args)
+    if return_args:
+        stack.append(args)
+    if prev:
+        prev.color = WIP
+    if prev_par and args[2] and args[2] != prev_par:
+        prev_par.color = WIP
+    if args[2]:
+        args[2].color = CURR
+    args[0].color = CURR
+    stack.extend(return_args)
+    prev = args[0]
+    prev_par = args[2]
+    return prev, prev_par
+
 def main():
     pygame.font.init()
     surface = pygame.display.set_mode() #initializes a window
+    annotation_font = pygame.font.SysFont("Arial", 24)
 
     tree = build_tree(None, 4, "simple")
-    tree.color = (255, 0, 0)
-    print(minimax(tree, True))
+    tree.color = CURR
     surface.fill(WHITE) #sets background color to white
-    visualize_game_tree(surface, tree, 800, 200, 2**9, 2**6)
 
-    pygame.display.flip() #displays the window
-
+    stack = [(tree, True, None), ]
+    prev = None
+    prev_par = None
     #run loop, ends program when user closes window
     running = True
+    annotations = []
+    for i in range(100):
+        annotations.append(None)
+    annotations[0] = "this is a minimax tree"
+    counter = 0
+
+    start = 190
+    gap = 2**6
+    for i in range(4):
+        if i% 2 == 0:
+            text = "MAX"
+        else:
+            text = "MIN"
+        text_surface = annotation_font.render(text, False, BLACK)
+        surface.blit(text_surface, (40, start + gap * i))
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-
+            #if event.type == mouseclick, D key (WASD), -> key, spacebar
+                # everything below
+        prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
+        visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
+        if annotations[counter] != None:
+            text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
+            surface.blit(text_surface, (100, 450))
+        time.sleep(2)
         pygame.display.flip() #update visual changes to display
+        counter += 1
+
     pygame.display.quit()
 
 
