@@ -31,7 +31,7 @@ class GameTree:
         self.color = WHITE
 
 def simple_heuristic(board):
-    pass
+    return random.randint(1, 20)
 
 def advanced_heuristic(board):
     pass
@@ -60,7 +60,7 @@ def visualize_game_tree(surface, root, start_x, start_y, x_dist, y_dist):
 def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
     that can be yielded by player making one move"""
-    pass
+    return [1, 2, 3]
 
 def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     """Builds the minimax tree"""
@@ -108,6 +108,8 @@ def one_step_minimax(tree, is_max, parent):
         else:
             parent.value = max(parent.value, tree.value)
         return [] #no recursive calls spawned
+    elif tree.value is not None:
+        return []
     #max layer finds max of its children recursively
     if is_max:
         return [(child, not is_max, tree) for child in tree.children]
@@ -132,19 +134,31 @@ def show_minimax_step_and_update_stack(stack, prev, prev_par):
     prev_par = args[2]
     return prev, prev_par
 
+def display_layer_labels(surface, annotation_font):
+    start = 190
+    gap = 2 ** 6
+    for i in range(4):
+        if i % 2 == 0:
+            text = "MAX"
+        else:
+            text = "MIN"
+        text_surface = annotation_font.render(text, False, BLACK)
+        surface.blit(text_surface, (150, start + gap * i))
+
+
 def main():
     pygame.font.init()
     surface = pygame.display.set_mode() #initializes a window
     annotation_font = pygame.font.SysFont("Arial", 24)
+    surface.fill(WHITE)  # sets background color to white
 
     tree = build_tree(None, 4, "simple")
     tree.color = CURR
-    surface.fill(WHITE) #sets background color to white
 
+    #initialize variables
     stack = [(tree, True, None), ]
     prev = None
     prev_par = None
-    #run loop, ends program when user closes window
     running = True
     annotations = []
     for i in range(100):
@@ -152,33 +166,33 @@ def main():
     annotations[0] = "this is a minimax tree"
     counter = 0
 
-    start = 190
-    gap = 2**6
-    for i in range(4):
-        if i% 2 == 0:
-            text = "MAX"
-        else:
-            text = "MIN"
-        text_surface = annotation_font.render(text, False, BLACK)
-        surface.blit(text_surface, (40, start + gap * i))
+    #display initial values
+    text_surface = annotation_font.render(str("Press ->, D, or space to move forward"), False, BLACK)
+    surface.blit(text_surface, (100, 450))
+    pygame.display.flip()
+
+    #run loop
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            #if event.type == mouseclick, D key (WASD), -> key, spacebar
-                # everything below
-        prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
-        visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
-        if annotations[counter] != None:
-            text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
-            surface.blit(text_surface, (100, 450))
-        time.sleep(2)
-        pygame.display.flip() #update visual changes to display
-        counter += 1
+            if (event.type == pygame.KEYDOWN and event.key == pygame.K_RIGHT)\
+                or (event.type == pygame.KEYDOWN and event.key == pygame.K_d)\
+                or (event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE):
+                surface.fill(WHITE)
+                if not stack:
+                    running = False
+                    continue
+                prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
+                visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
+                if annotations[counter] is not None:
+                    text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
+                    surface.blit(text_surface, (100, 450))
+                display_layer_labels(surface, annotation_font)
+                pygame.display.flip() #update visual changes to display
+                counter += 1
 
     pygame.display.quit()
-
-
     #state = 0
 
     print("minimax results:")
