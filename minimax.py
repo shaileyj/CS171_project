@@ -2,6 +2,21 @@ import time
 import pygame
 import random
 
+WINDOW_SIZE = 800
+BOARD_SIZE = 5
+TILE_SIZE = 100 #WINDOW_SIZE / (BOARD_SIZE + 2)
+BOARD_OFFSET = TILE_SIZE
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+GRAY = (128, 128, 128)
+LIGHT_GRAY = (200, 200, 200)
+RED = (255, 0, 0)
+BLUE = (0, 0, 255)
+LIGHT_RED = (255, 150, 150)
+LIGHT_BLUE = (150, 150, 255)
+GREEN = (0, 255, 0)
+YELLOW = (255, 255, 0)
+
 # define constants that are used in many places so that we can
 # edit them if we need to
 BOARD_SIZE = 5
@@ -98,6 +113,15 @@ def minimax(tree, is_max):
         tree.value = min(minimax(child, not is_max) for child in tree.children)
     return tree.value
 
+def ai_move(board, player, depth, heuristic):
+    tree = build_tree(board, depth, heuristic, player)
+    is_max = (player == PLAYER_1)
+    value = minimax(tree, is_max)
+    for child in tree.children:
+        if value == child.value:
+            return child.board
+
+
 def one_step_minimax(tree, is_max, parent):
     #base case updates parent node
     if tree.value is not None and parent is not None:
@@ -145,6 +169,35 @@ def display_layer_labels(surface, annotation_font):
         text_surface = annotation_font.render(text, False, BLACK)
         surface.blit(text_surface, (150, start + gap * i))
 
+def draw_board(screen, board):
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            x = BOARD_OFFSET + col * TILE_SIZE
+            y = BOARD_OFFSET + row * TILE_SIZE
+
+            if board[row][col] is None:
+                # if (row,col) in self.valid_move:
+                #     return LIGHT_GRAY
+                # else:
+                color = WHITE
+            elif board[row][col] == 1:
+                color = RED
+            else:
+                color = BLUE
+            pygame.draw.rect(screen, color, (x, y, TILE_SIZE, TILE_SIZE))
+            # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
+
+            # if (row, col) in self.valid_move:
+            #     center_x = x + TILE_SIZE//2
+            #     center_y = y + TILE_SIZE//2
+            #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
+    # grid
+    for col in range(BOARD_SIZE + 1):  # vertical
+        x = BOARD_OFFSET + col * TILE_SIZE
+        pygame.draw.line(screen, BLACK, (x, BOARD_OFFSET), (x, BOARD_OFFSET + BOARD_SIZE * TILE_SIZE), 2)
+    for row in range(BOARD_SIZE + 1):  # horizontal
+        y = BOARD_OFFSET + row * TILE_SIZE
+        pygame.draw.line(screen, BLACK, (BOARD_OFFSET, y), (BOARD_OFFSET + BOARD_SIZE * TILE_SIZE, y), 2)
 
 def main():
     pygame.font.init()
@@ -185,6 +238,8 @@ def main():
                     continue
                 prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
                 visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
+                draw_board(surface, prev.board)
+                draw_board(surface, prev_par.board)
                 if annotations[counter] is not None:
                     text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
                     surface.blit(text_surface, (100, 450))
