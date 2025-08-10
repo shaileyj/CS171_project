@@ -1,10 +1,11 @@
 import time
 import pygame
 import random
+import copy
 
 WINDOW_SIZE = 800
 BOARD_SIZE = 5
-TILE_SIZE = 100 #WINDOW_SIZE / (BOARD_SIZE + 2)
+TILE_SIZE = 50 #WINDOW_SIZE / (BOARD_SIZE + 2)
 BOARD_OFFSET = TILE_SIZE
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -29,8 +30,9 @@ PLAYER_2 = 2
 #colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-WIP = (255, 209, 248)
-CURR = (255, 110, 139)
+WIP = (200, 200, 200)
+CURR = (15, 194, 2)
+PAR = (162, 95, 237)
 FIN = (156, 156, 156)
 
 
@@ -72,10 +74,51 @@ def visualize_game_tree(surface, root, start_x, start_y, x_dist, y_dist):
         pygame.draw.line(surface, BLACK, (start_x, start_y+20), (x, y-10))
         visualize_game_tree(surface, child, x, y, x_dist//len(root.children), y_dist)
 
+def get_adjacent_positions(x, y):
+    adjacent_positions =[]
+    for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:
+        new_row, new_col = x + dr, y + dc
+        if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
+            adjacent_positions .append((new_row, new_col))
+    return adjacent_positions
+
 def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
     that can be yielded by player making one move"""
-    return [1, 2, 3]
+    valid_moves = []
+    #player_moves = self.player1_moves if player == 1 else self.player2_moves
+
+    # Check if board is completely empty
+    # board_empty = all(board[row][col] is None
+    #                   for row in range(BOARD_SIZE)
+    #                   for col in range(BOARD_SIZE))
+    #
+    # if board_empty:
+    #     # First move of the game - all tiles are valid
+    #     for row in range(BOARD_SIZE):
+    #         for col in range(BOARD_SIZE):
+    #             valid_moves.add((row, col))
+    # elif len(player_moves) == 0:
+    #     # This player's first move - can place anywhere empty
+    #     for row in range(BOARD_SIZE):
+    #         for col in range(BOARD_SIZE):
+    #             if self.board[row][col] is None:
+    #                 valid_moves.add((row, col))
+
+    # Find all adjacent positions to ALL of this player's existing tiles
+    for move_row in range(5):
+        for move_col in range(5):
+            # Only consider tiles that are still owned by this player
+            if board[move_row][move_col] == player:
+                adjacent = get_adjacent_positions(move_row, move_col)
+                for adj_row, adj_col in adjacent:
+                    if board[adj_row][adj_col] is None:
+                        valid_board = copy.deepcopy(board)
+                        valid_board[adj_row][adj_col] = player
+                        valid_moves.append(valid_board)
+
+    # Update the appropriate valid moves set
+    return valid_moves
 
 def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     """Builds the minimax tree"""
@@ -83,7 +126,8 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     #player 2 is the min player for simplicity
 
     root = GameTree(None, board)
-    if depth <= 1:
+    children = generate_moves(board, player)
+    if depth <=1 or len(children) == 0:
         # leaf nodes are initialized to heuristic(board)
         if heuristic == "simple":
             root.value = simple_heuristic(board)
@@ -95,7 +139,7 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     other = PLAYER_2 if player == PLAYER_1 else PLAYER_1
     #recursively generate subtree for each child node (each possible move
     #current player can take)
-    for move in generate_moves(board, player):
+    for move in children:
         root.children.append(build_tree(move, depth-1, heuristic, other))
     print(root.value)
     return root
@@ -121,7 +165,6 @@ def ai_move(board, player, depth, heuristic):
         if value == child.value:
             return child.board
 
-
 def one_step_minimax(tree, is_max, parent):
     #base case updates parent node
     if tree.value is not None and parent is not None:
@@ -136,10 +179,10 @@ def one_step_minimax(tree, is_max, parent):
         return []
     #max layer finds max of its children recursively
     if is_max:
-        return [(child, not is_max, tree) for child in tree.children]
+        return reversed([(child, not is_max, tree) for child in tree.children])
     #min layer finds min of its children recursively
     else:
-        return [(child, not is_max, tree) for child in tree.children]
+        return reversed([(child, not is_max, tree) for child in tree.children])
 
 def show_minimax_step_and_update_stack(stack, prev, prev_par):
     args = stack.pop()
@@ -151,7 +194,7 @@ def show_minimax_step_and_update_stack(stack, prev, prev_par):
     if prev_par and args[2] and args[2] != prev_par:
         prev_par.color = WIP
     if args[2]:
-        args[2].color = CURR
+        args[2].color = PAR
     args[0].color = CURR
     stack.extend(return_args)
     prev = args[0]
@@ -169,11 +212,11 @@ def display_layer_labels(surface, annotation_font):
         text_surface = annotation_font.render(text, False, BLACK)
         surface.blit(text_surface, (150, start + gap * i))
 
-def draw_board(screen, board):
+def draw_board(screen, board, x_offset, y_offset):
     for row in range(BOARD_SIZE):
         for col in range(BOARD_SIZE):
-            x = BOARD_OFFSET + col * TILE_SIZE
-            y = BOARD_OFFSET + row * TILE_SIZE
+            x = x_offset + col * TILE_SIZE
+            y = y_offset + row * TILE_SIZE
 
             if board[row][col] is None:
                 # if (row,col) in self.valid_move:
@@ -193,19 +236,19 @@ def draw_board(screen, board):
             #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
     # grid
     for col in range(BOARD_SIZE + 1):  # vertical
-        x = BOARD_OFFSET + col * TILE_SIZE
-        pygame.draw.line(screen, BLACK, (x, BOARD_OFFSET), (x, BOARD_OFFSET + BOARD_SIZE * TILE_SIZE), 2)
+        x = x_offset + col * TILE_SIZE
+        pygame.draw.line(screen, BLACK, (x, y_offset), (x, y_offset + BOARD_SIZE * TILE_SIZE), 2)
     for row in range(BOARD_SIZE + 1):  # horizontal
-        y = BOARD_OFFSET + row * TILE_SIZE
-        pygame.draw.line(screen, BLACK, (BOARD_OFFSET, y), (BOARD_OFFSET + BOARD_SIZE * TILE_SIZE, y), 2)
+        y = y_offset + row * TILE_SIZE
+        pygame.draw.line(screen, BLACK, (x_offset, y), (x_offset + BOARD_SIZE * TILE_SIZE, y), 2)
 
-def main():
+def main(board):
     pygame.font.init()
     surface = pygame.display.set_mode() #initializes a window
     annotation_font = pygame.font.SysFont("Arial", 24)
     surface.fill(WHITE)  # sets background color to white
 
-    tree = build_tree(None, 4, "simple")
+    tree = build_tree(board, 4, "simple")
     tree.color = CURR
 
     #initialize variables
@@ -238,8 +281,14 @@ def main():
                     continue
                 prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
                 visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
-                draw_board(surface, prev.board)
-                draw_board(surface, prev_par.board)
+                if prev:
+                    text_surface = annotation_font.render(str("Current State:"), False, CURR)
+                    surface.blit(text_surface, (800, 470))
+                    draw_board(surface, prev.board, 800, 500)
+                if prev_par:
+                    text_surface = annotation_font.render(str("Current Parent:"), False, PAR)
+                    surface.blit(text_surface, (200, 470))
+                    draw_board(surface, prev_par.board, 200, 500)
                 if annotations[counter] is not None:
                     text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
                     surface.blit(text_surface, (100, 450))
@@ -255,4 +304,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    pass
