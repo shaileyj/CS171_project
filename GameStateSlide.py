@@ -4,7 +4,7 @@ from MinimaxTreeSample import MinimaxTreeSample
 def GameStateSlide():
     """Main application entry point"""
     # Create minimax tree
-    minimax_tree = MinimaxTreeSample(depth=4)
+    minimax_tree = MinimaxTreeSample(depth=1)
 
 
     # Create game state view with minimax integration
