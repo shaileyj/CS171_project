@@ -1,8 +1,6 @@
 import sys
 import time
 import pygame
-import GameStateSlide
-import GameStateView
 import minimax
 import TileCaptureGame
 

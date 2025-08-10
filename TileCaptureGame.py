@@ -336,6 +336,45 @@ class TileCaptureGame:
         pygame.quit()
         sys.exit()
 
+    def simple_heuristic(self):
+        heuristic = []
+        copy_valid_moves = list(self.player1_valid_moves)
+
+        for move in copy_valid_moves:
+            # Save COMPLETE current state
+            original_board = [row[:] for row in self.board]
+            original_player1_moves = self.player1_moves[:]
+            original_player2_moves = self.player2_moves[:]
+            original_player1_valid_moves = self.player1_valid_moves.copy()
+            original_player2_valid_moves = self.player2_valid_moves.copy()
+            original_current_player = self.current_player
+            original_last_move = self.last_move
+
+            # Ensure we're evaluating Player 1 moves
+            self.current_player = 1
+
+            trial = self.make_move(*move)
+
+            if trial:
+                # Calculate heuristic using NEW state (after move)
+                player1_pieces = len(self.player1_moves)  # ← Use self, not copy
+                player2_pieces = len(self.player2_moves)  # ← Use self, not copy
+                player1_moves_count = len(self.player1_valid_moves)  # ← Use self, not copy
+                player2_moves_count = len(self.player2_valid_moves)  # ← Use self, not copy
+
+                heuristic_value = player1_pieces + player1_moves_count - player2_pieces - player2_moves_count
+                heuristic.append(heuristic_value)
+
+            # RESTORE original state
+            self.board = original_board
+            self.player1_moves = original_player1_moves
+            self.player2_moves = original_player2_moves
+            self.player1_valid_moves = original_player1_valid_moves
+            self.player2_valid_moves = original_player2_valid_moves
+            self.current_player = original_current_player
+            self.last_move = original_last_move
+
+        return heuristic
 if __name__ == "__main__":
     game = TileCaptureGame()
     game.run()
