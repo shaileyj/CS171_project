@@ -260,6 +260,7 @@ def main(board):
     for i in range(100):
         annotations.append(None)
     annotations[0] = "this is a minimax tree"
+    annotations[1] = "testing testing testing testing testing testing testing"
     counter = 0
 
     #display initial values
@@ -291,7 +292,7 @@ def main(board):
                     draw_board(surface, prev_par.board, 200, 500)
                 if annotations[counter] is not None:
                     text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
-                    surface.blit(text_surface, (100, 450))
+                    surface.blit(text_surface, (150, 100))
                 display_layer_labels(surface, annotation_font)
                 pygame.display.flip() #update visual changes to display
                 counter += 1
