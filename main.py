@@ -27,7 +27,6 @@ def main():
             if event.type == pygame.QUIT:
                 running = False
 
-
         time.sleep(2)
         move = game.player1_valid_moves.pop()
         game.player1_valid_moves.add(move)
@@ -36,9 +35,6 @@ def main():
         move = game.player2_valid_moves.pop()
         game.player2_valid_moves.add(move)
         game.make_move(*move)
-
-
-
 
         # game.draw_board()
         pygame.display.flip()

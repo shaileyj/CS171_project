@@ -252,7 +252,5 @@ def main():
 
     print("minimax results:")
 
-
-
 if __name__ == "__main__":
     main()
