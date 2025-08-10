@@ -44,7 +44,9 @@ def main():
     #     pygame.display.flip()
     #     game.clock.tick(60)
 
-
+    game = TileCaptureGame.TileCaptureGame(board)
+    game.run()
+    
     pygame.quit()
     sys.exit()
 
