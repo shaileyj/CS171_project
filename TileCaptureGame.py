@@ -89,17 +89,6 @@ class TileCaptureGame:
         else:
             self.player2_valid_moves = valid_moves
 
-    # def get_surrounding_positions(self, x, y):
-    #     surrounding_positions = []
-    #     for dr in [-1,0,1]: #delta row: up/same/down
-    #         for dc in [-1,0,1]: #delta column: left/same/right
-    #             # if dr == 0 and dc == 0:
-    #             #     continue
-    #             new_row, new_col = x + dr, y + dc
-    #             if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
-    #                 surrounding_positions .append((new_row, new_col))
-    #     return surrounding_positions
-
     def get_current_valid_moves(self):
         """Get valid moves for the current player"""
         return self.player1_valid_moves if self.current_player == 1 else self.player2_valid_moves
