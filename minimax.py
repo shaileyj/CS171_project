@@ -302,7 +302,5 @@ def main(board):
 
     print("minimax results:")
 
-
-
 if __name__ == "__main__":
     pass

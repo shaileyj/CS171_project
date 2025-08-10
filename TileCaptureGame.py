@@ -22,7 +22,7 @@ GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 
 class TileCaptureGame:
-    def __init__(self, board):
+    def __init__(self):
         self.screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
         pygame.display.set_caption("Tile Capture Game")
         self.clock = pygame.time.Clock()
@@ -30,19 +30,19 @@ class TileCaptureGame:
         self.small_font = pygame.font.SysFont(None, 36)
 
         #Game state
-        self.board = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)] if board is None else board
+        self.board = [[None for _ in range(BOARD_SIZE)] for _ in range(BOARD_SIZE)]
         self.current_player = 1
         self.game_over = False
         self.valid_move = set()
-        self.last_move = 1234
+        self.last_move = None
         self.player1_score = 0
         self.player2_score = 0
 
         #track moves
         self.player1_moves = []
         self.player2_moves = []
-        self.player1_valid_moves = {(1, 0), (2, 0), (4, 0), (4, 1), (4, 2), (4, 3), (4, 4)}
-        self.player2_valid_moves = {(0,4)}
+        self.player1_valid_moves = set()
+        self.player2_valid_moves = set()
 
         # Initialize valid moves for both players
         self.update_all_valid_moves()
@@ -238,7 +238,26 @@ class TileCaptureGame:
         current_valid_moves = self.get_current_valid_moves()
 
         #tiles
+        for row in range(BOARD_SIZE):
+            for col in range(BOARD_SIZE):
+                x = BOARD_OFFSET + col * TILE_SIZE
+                y = BOARD_OFFSET + row * TILE_SIZE
 
+                color = self.get_tile_color(row, col)
+                pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
+                # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
+
+                # if (row, col) in self.valid_move:
+                #     center_x = x + TILE_SIZE//2
+                #     center_y = y + TILE_SIZE//2
+                #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
+        #grid
+        for col in range(BOARD_SIZE+1): #vertical
+            x = BOARD_OFFSET + col * TILE_SIZE
+            pygame.draw.line(self.screen, BLACK,(x, BOARD_OFFSET),(x,BOARD_OFFSET+BOARD_SIZE*TILE_SIZE),2)
+        for row in range(BOARD_SIZE + 1):  # horizontal
+            y = BOARD_OFFSET + row * TILE_SIZE
+            pygame.draw.line(self.screen, BLACK, (BOARD_OFFSET, y), (BOARD_OFFSET + BOARD_SIZE * TILE_SIZE, y), 2)
 
         player_text = f"Player {self.current_player}'s Turn"
         player_color = RED if self.current_player == 1 else BLUE
