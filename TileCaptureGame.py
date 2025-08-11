@@ -1,3 +1,4 @@
+#Team Members: Shailey Joseph, My Nguyen
 import pygame
 import sys
 
