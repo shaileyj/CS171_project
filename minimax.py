@@ -1,3 +1,4 @@
+#Team Members: Shailey Joseph, My Nguyen
 import time
 import pygame
 import random
