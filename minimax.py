@@ -292,12 +292,15 @@ def main(surface, board):
                       "plays optimally."
     annotations[4] = "the MAX layer keeps the largest value it can achieve"
     annotations[5] = "the MIN layer keeps the smallest value it can achieve"
+    annotations[46] = "We have found the best move for red to take from this state (the one that guarantees a score of at least 12)"
 
     counter = 0
 
     #display initial values
     text_surface = annotation_font.render(str("Press ->, D, or space to move forward"), False, BLACK)
-    surface.blit(text_surface, (200, 470))
+    surface.blit(text_surface, (150, 100))
+    text_surface = annotation_font.render(str("How might a player choose the best move to take?"), False, BLACK)
+    surface.blit(text_surface, (150, 150))
     pygame.display.flip()
 
     #run loop
