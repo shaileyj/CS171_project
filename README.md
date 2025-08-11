@@ -28,7 +28,7 @@ Once you understand the game, examine the minimax tree visualization by clicking
 ## What you will learn
 - Tree Structure: ** How game states form a decision tree
 - Step by Step Execution: Watch the algorithm work step by step
-- Decison Path: Follow the optimal move selection
+- Decision Path: Follow the optimal move selection
 
 ## File Structure
 **'TileCaptureGame.py'** - Interactive tile capture game
