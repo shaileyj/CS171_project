@@ -1,3 +1,4 @@
+#Team Members: Shailey Joseph, My Nguyen
 import sys
 import time
 import pygame
