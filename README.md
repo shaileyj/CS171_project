@@ -1,5 +1,5 @@
 # Minimax Tree project - Part 1
-## #Team Members: Shailey Joseph, My Nguyen
+## Team Members: Shailey Joseph, My Nguyen
 The minimax algorithm is a decision-making algorithm commonly used in game theory and artificial intelligence for the two-player zero-sum game. This project helps you understand how the algorithm works by:
 - Playing an interactive tile capture game
 - Visualizing the minimax decision tree in real-time
