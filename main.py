@@ -1,12 +1,20 @@
 import sys
 import time
 import pygame
-import GameStateSlide
-import GameStateView
 import minimax
 import TileCaptureGame
 
+WHITE = (255, 255, 255)
+
 def main():
+    pygame.font.init()
+    surface = pygame.display.set_mode()  # initializes a window
+    surface.fill(WHITE)  # sets background color to white
+
+    game = TileCaptureGame.TileCaptureGame(surface)
+    game.run()
+    surface.fill(WHITE)
+
 
     board = [
         [1, 1, 1, 2, None],
@@ -15,8 +23,16 @@ def main():
         [1, 1, 1, 2, 2],
         [1, None, None, 2, 2]
     ]
+
+    alt_board = [
+        [1, 1, 1, 2, None],
+        [1, None, 2, 2, 2],
+        [1, None, 2, 2, 2],
+        [1, None, None, 2, 2],
+        [1, 1, 2, 2, 2]]
+
     #(optional) write some code to display the game rules
-    minimax.main(board)
+    minimax.main(surface, alt_board)
     #game = TileCaptureGame.TileCaptureGame(board)
     #game.run()
     #
@@ -44,8 +60,6 @@ def main():
     #     pygame.display.flip()
     #     game.clock.tick(60)
 
-    game = TileCaptureGame.TileCaptureGame(board)
-    game.run()
     
     pygame.quit()
     sys.exit()
