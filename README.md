@@ -1,5 +1,5 @@
 # Minimax Tree project - Part 1
-
+## Team Members: Shailey Joseph, My Nguyen
 The minimax algorithm is a decision-making algorithm commonly used in game theory and artificial intelligence for the two-player zero-sum game. This project helps you understand how the algorithm works by:
 - Playing an interactive tile capture game
 - Visualizing the minimax decision tree in real-time
@@ -8,7 +8,7 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
 
 ## Get Started
 ### Step 1: Play the game
-Start by exploring the tile capture game in **'TileCaptureGame.py'**
+Start by exploring the tile capture game in **'main.py'**
 - Familiarize yourself with the game mechanics
 - Understand the rules and objectives
 - Try different strategies and observe the outcomes
@@ -19,7 +19,7 @@ The game rule:
 - Whoever has a greater number of tiles when no more empty tiles are left is the winner.
 
 ## Step 2: Explore the Minimax Visualization
-Once you understand the game, examine the minimax tree visualization in **`minimax.py`**
+Once you understand the game, examine the minimax tree visualization by clicking "->","D" or "space"
 - Watch the tree construction process step by step
 - Observe how each node represents a game state
 - Follow the algorithm's decision-making process
@@ -28,7 +28,7 @@ Once you understand the game, examine the minimax tree visualization in **`minim
 ## What you will learn
 - Tree Structure: ** How game states form a decision tree
 - Step by Step Execution: Watch the algorithm work step by step
-- Decison Path: Follow the optimal move selection
+- Decision Path: Follow the optimal move selection
 
 ## File Structure
 **'TileCaptureGame.py'** - Interactive tile capture game

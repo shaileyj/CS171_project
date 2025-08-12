@@ -1,3 +1,4 @@
+#Team Members: Shailey Joseph, My Nguyen
 import pygame
 import sys
 
@@ -6,9 +7,11 @@ pygame.init()
 
 #Constant
 WINDOW_SIZE = 800
+WINDOW_HEIGHT = 800
 BOARD_SIZE = 5
 TILE_SIZE = WINDOW_SIZE / (BOARD_SIZE + 2)
 BOARD_OFFSET = TILE_SIZE
+ANNOTATION_WIDTH = 350
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
@@ -22,8 +25,8 @@ GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 
 class TileCaptureGame:
-    def __init__(self):
-        self.screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
+    def __init__(self, screen):
+        self.screen = screen #pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
         pygame.display.set_caption("Tile Capture Game")
         self.clock = pygame.time.Clock()
         self.font = pygame.font.SysFont(None, 36)
@@ -88,17 +91,6 @@ class TileCaptureGame:
             self.player1_valid_moves = valid_moves
         else:
             self.player2_valid_moves = valid_moves
-
-    # def get_surrounding_positions(self, x, y):
-    #     surrounding_positions = []
-    #     for dr in [-1,0,1]: #delta row: up/same/down
-    #         for dc in [-1,0,1]: #delta column: left/same/right
-    #             # if dr == 0 and dc == 0:
-    #             #     continue
-    #             new_row, new_col = x + dr, y + dc
-    #             if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
-    #                 surrounding_positions .append((new_row, new_col))
-    #     return surrounding_positions
 
     def get_current_valid_moves(self):
         """Get valid moves for the current player"""
@@ -210,10 +202,10 @@ class TileCaptureGame:
     def check_captures(self, row, col):
         surrounding = self.get_adjacent_positions(row, col)
         for sr, sc in surrounding:
-            if self.board[sr][sc] is not None and self.board[sr][col] != self.current_player:
+            if self.board[sr][sc] is not None and self.board[sr][sc] != self.current_player:
                 current_surrounding = self.count_adjacent_tile(sr, sc, self.current_player)
                 opponent_surrounding = self.count_adjacent_tile(sr, -sc, self.board[sr][sc])
-                if current_surrounding > opponent_surrounding:
+                if current_surrounding > 1:
                     self.board[sr][sc] = self.current_player
 
     def calculate_final_scores(self):
@@ -231,8 +223,47 @@ class TileCaptureGame:
         else:
             return BLUE
 
+    def draw_annotation(self):
+        """Draw the game rules annotation on the right side"""
+        # Title
+        title_text = "GAME RULES"
+        title_surface = self.font.render(title_text, True, BLACK)
+        title_rect = title_surface.get_rect(centerx=1000 + ANNOTATION_WIDTH // 2, y=30)
+        self.screen.blit(title_surface, title_rect)
+
+        # Rules text - split into lines
+        rules = [
+            "1. Choose a tile adjacent to your",
+            "   previous tiles (left/right/top/bottom)",
+            "",
+            "2. You can capture opponent's tiles",
+            "   if you have more adjacent tiles",
+            "   than the opponent has",
+            "",
+            "3. Winner has the greater number",
+            "   of tiles when no empty tiles",
+            "   are left",
+            ""
+        ]
+        y_offset = 80
+        line_height = 25
+
+        for line in rules:
+            if line.strip():  # Skip empty lines for spacing
+                # Color code the player scores
+                if "Player 1" in line:
+                    text_surface = self.small_font.render(line, True, RED)
+                elif "Player 2" in line:
+                    text_surface = self.small_font.render(line, True, BLUE)
+                else:
+                    text_surface = self.small_font.render(line, True, BLACK)
+                self.screen.blit(text_surface, (1020, y_offset))
+            y_offset += line_height
+
     def draw_board(self):
         self.screen.fill(WHITE)
+
+        self.draw_annotation()
 
         # Get current player's valid moves
         current_valid_moves = self.get_current_valid_moves()
@@ -245,12 +276,6 @@ class TileCaptureGame:
 
                 color = self.get_tile_color(row, col)
                 pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
-                # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
-
-                # if (row, col) in self.valid_move:
-                #     center_x = x + TILE_SIZE//2
-                #     center_y = y + TILE_SIZE//2
-                #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
         #grid
         for col in range(BOARD_SIZE+1): #vertical
             x = BOARD_OFFSET + col * TILE_SIZE
@@ -277,16 +302,6 @@ class TileCaptureGame:
             pygame.draw.rect(self.screen, WHITE, game_over_rect.inflate(20,20))
             pygame.draw.rect(self.screen, WHITE, game_over_rect.inflate(20,20),2)
             self.screen.blit(game_over_surface, game_over_rect)
-
-    # def handle_click(self, pos):
-    #     if self.game_over:
-    #         return
-    #     x,y = pos
-    #     col = (x - BOARD_OFFSET)//TILE_SIZE
-    #     row = (y - BOARD_OFFSET) // TILE_SIZE
-    #
-    #     if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
-    #         self.make_move(row, col)
 
     def handle_click(self, pos):
         if self.game_over:
@@ -328,13 +343,45 @@ class TileCaptureGame:
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_r:
                         self.__init__()
-
+            if self.game_over:
+                running = False
             # self.draw_board()
             pygame.display.flip()
             self.clock.tick(60)
 
-        pygame.quit()
-        sys.exit()
+        #pygame.quit()
+        #sys.exit()
+
+def draw_board(board):
+    for row in range(BOARD_SIZE):
+        for col in range(BOARD_SIZE):
+            x = BOARD_OFFSET + col * TILE_SIZE
+            y = BOARD_OFFSET + row * TILE_SIZE
+
+            if self.board[row][col] is None:
+                # if (row,col) in self.valid_move:
+                #     return LIGHT_GRAY
+                # else:
+                color = WHITE
+            elif self.board[row][col] == 1:
+                color = RED
+            else:
+                return BLUE
+            color = self.get_tile_color(row, col)
+            pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
+            # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
+
+            # if (row, col) in self.valid_move:
+            #     center_x = x + TILE_SIZE//2
+            #     center_y = y + TILE_SIZE//2
+            #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
+    # grid
+    for col in range(BOARD_SIZE + 1):  # vertical
+        x = BOARD_OFFSET + col * TILE_SIZE
+        pygame.draw.line(self.screen, BLACK, (x, BOARD_OFFSET), (x, BOARD_OFFSET + BOARD_SIZE * TILE_SIZE), 2)
+    for row in range(BOARD_SIZE + 1):  # horizontal
+        y = BOARD_OFFSET + row * TILE_SIZE
+        pygame.draw.line(self.screen, BLACK, (BOARD_OFFSET, y), (BOARD_OFFSET + BOARD_SIZE * TILE_SIZE, y), 2)
 
     def simple_heuristic(self):
         heuristic = []

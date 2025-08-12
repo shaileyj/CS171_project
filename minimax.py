@@ -1,3 +1,4 @@
+#Team Members: Shailey Joseph, My Nguyen
 import time
 import pygame
 import random
@@ -48,7 +49,12 @@ class GameTree:
         self.color = WHITE
 
 def simple_heuristic(board):
-    return random.randint(1, 20)
+    value = 0
+    for row in board:
+        for column in row:
+            if column == PLAYER_1:
+                value += 1
+    return value
 
 def advanced_heuristic(board):
     pass
@@ -74,13 +80,30 @@ def visualize_game_tree(surface, root, start_x, start_y, x_dist, y_dist):
         pygame.draw.line(surface, BLACK, (start_x, start_y+20), (x, y-10))
         visualize_game_tree(surface, child, x, y, x_dist//len(root.children), y_dist)
 
+def count_adjacent_tile(x, y,board, player):
+    count = 0
+    surrounding = get_adjacent_positions(x, y)
+    for sr, sc in surrounding:
+        if board[sr][sc] == player:
+            count += 1
+    return count
+
 def get_adjacent_positions(x, y):
     adjacent_positions =[]
     for dr, dc in [(-1,0), (1,0), (0,-1), (0,1)]:
         new_row, new_col = x + dr, y + dc
         if 0 <= new_row < BOARD_SIZE and 0 <= new_col < BOARD_SIZE:
-            adjacent_positions .append((new_row, new_col))
+            adjacent_positions.append((new_row, new_col))
     return adjacent_positions
+
+def check_captures(board, row, col, player):
+    surrounding = get_adjacent_positions(row, col)
+    for sr, sc in surrounding:
+        if board[sr][sc] is not None and board[sr][sc] != player:
+            current_surrounding = count_adjacent_tile(sr, sc, board, player)
+            opponent_surrounding = count_adjacent_tile(sr, sc, board, board[sr][sc])
+            if current_surrounding > 1:
+                board[sr][sc] = player
 
 def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
@@ -106,16 +129,20 @@ def generate_moves(board, player):
     #                 valid_moves.add((row, col))
 
     # Find all adjacent positions to ALL of this player's existing tiles
+    added = set()
     for move_row in range(5):
         for move_col in range(5):
             # Only consider tiles that are still owned by this player
             if board[move_row][move_col] == player:
                 adjacent = get_adjacent_positions(move_row, move_col)
                 for adj_row, adj_col in adjacent:
-                    if board[adj_row][adj_col] is None:
+                    if board[adj_row][adj_col] is None and (adj_row, adj_col) not in added:
                         valid_board = copy.deepcopy(board)
                         valid_board[adj_row][adj_col] = player
+                        check_captures(valid_board, adj_row, adj_col, player)
                         valid_moves.append(valid_board)
+                        added.add((adj_row, adj_col))
+
 
     # Update the appropriate valid moves set
     return valid_moves
@@ -242,11 +269,11 @@ def draw_board(screen, board, x_offset, y_offset):
         y = y_offset + row * TILE_SIZE
         pygame.draw.line(screen, BLACK, (x_offset, y), (x_offset + BOARD_SIZE * TILE_SIZE, y), 2)
 
-def main(board):
-    pygame.font.init()
-    surface = pygame.display.set_mode() #initializes a window
+def main(surface, board):
+    #pygame.font.init()
+    #surface = pygame.display.set_mode() #initializes a window
     annotation_font = pygame.font.SysFont("Arial", 24)
-    surface.fill(WHITE)  # sets background color to white
+    #surface.fill(WHITE)  # sets background color to white
 
     tree = build_tree(board, 4, "simple")
     tree.color = CURR
@@ -259,12 +286,22 @@ def main(board):
     annotations = []
     for i in range(100):
         annotations.append(None)
-    annotations[0] = "this is a minimax tree"
+    annotations[0] = ("This is a minimax tree. Each node represents the result state of a possible move we could make.")
+    annotations[1] = "The current child here represents one possible move Red could take from the parent state."
+    annotations[2] = "The current child here represents one possible move Blue could take from the previous state."
+    annotations[3] = "The goal of the MAX player (Red) is to find the largest achievable score if the MIN player (Blue) " \
+                      "plays optimally."
+    annotations[4] = "the MAX layer keeps the largest value it can achieve"
+    annotations[5] = "the MIN layer keeps the smallest value it can achieve"
+    annotations[46] = "We have found the best move for red to take from this state (the one that guarantees a score of at least 12)"
+
     counter = 0
 
     #display initial values
     text_surface = annotation_font.render(str("Press ->, D, or space to move forward"), False, BLACK)
-    surface.blit(text_surface, (100, 450))
+    surface.blit(text_surface, (150, 100))
+    text_surface = annotation_font.render(str("How might a player choose the best move to take?"), False, BLACK)
+    surface.blit(text_surface, (150, 150))
     pygame.display.flip()
 
     #run loop
@@ -282,7 +319,7 @@ def main(board):
                 prev, prev_par = show_minimax_step_and_update_stack(stack, prev, prev_par)
                 visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
                 if prev:
-                    text_surface = annotation_font.render(str("Current State:"), False, CURR)
+                    text_surface = annotation_font.render(str("Current Child:"), False, CURR)
                     surface.blit(text_surface, (800, 470))
                     draw_board(surface, prev.board, 800, 500)
                 if prev_par:
@@ -291,12 +328,12 @@ def main(board):
                     draw_board(surface, prev_par.board, 200, 500)
                 if annotations[counter] is not None:
                     text_surface = annotation_font.render(str(annotations[counter]), False, BLACK)
-                    surface.blit(text_surface, (100, 450))
+                    surface.blit(text_surface, (150, 100))
                 display_layer_labels(surface, annotation_font)
                 pygame.display.flip() #update visual changes to display
                 counter += 1
 
-    pygame.display.quit()
+    #pygame.display.quit()
     #state = 0
 
     print("minimax results:")
