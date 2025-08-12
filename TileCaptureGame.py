@@ -214,9 +214,6 @@ class TileCaptureGame:
 
     def get_tile_color(self, row, col):
         if self.board[row][col] is None:
-            # if (row,col) in self.valid_move:
-            #     return LIGHT_GRAY
-            # else:
             return WHITE
         elif self.board[row][col] == 1:
             return RED
