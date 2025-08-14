@@ -24,9 +24,8 @@ LIGHT_BLUE = (150, 150, 255)
 GREEN = (0, 255, 0)
 YELLOW = (255, 255, 0)
 
-class TileCaptureGame:
+class GameWithHeuristic:
     def __init__(self):
-        self.heuristic_choice = 0
         # Initialize pygame and game components
         self.screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
         pygame.display.set_caption(f"Tile Capture Game")
@@ -51,6 +50,7 @@ class TileCaptureGame:
 
         # Initialize valid moves for both players
         self.update_all_valid_moves()
+        self.heuristic_choice = self.choose_heuristic()
 
     def update_all_valid_moves(self):
         """Update valid moves for both players"""
@@ -308,14 +308,16 @@ class TileCaptureGame:
             return None
 
     def choose_heuristic(self):
-        heuristic_choice = input("Choose heuristic (0=Simple, 1=Second, 2=Third): ")
+        heuristic_choice = int(input("Choose heuristic (0=Simple, 1=Second, 2=Third): "))
 
         if heuristic_choice == 0:
             print(f"Simple heuristic value {simple_heuristic()}")
         elif heuristic_choice == 1:
-            print(f"Advanced heuristic value {self.second_heuristic()}")
+            print(f"Middle heuristic value {self.second_heuristic()}")
         elif heuristic_choice == 2:
             print(f"Advanced heuristic value {self.third_heuristic()}")
+
+        return heuristic_choice
 
     def run(self):
         running = True
@@ -502,7 +504,7 @@ if __name__ == "__main__":
     # Get heuristic choice
     print("🎮 Welcome to Tile Capture Game! 🎮")
 
-    game = TileCaptureGame()
+    game = GameWithHeuristic()
     game.run()
 
 
