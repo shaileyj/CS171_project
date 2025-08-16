@@ -55,14 +55,15 @@ def main(surface):
                     user_input = user_input[:-1]
                 elif event.key != pygame.K_RETURN:
                     user_input += event.unicode
-                else:
+                elif stack:
                     curr.value = user_input
                     prev = curr
                     prev_ans = curr_ans
                     if int(prev.value) == int(prev_ans.value):
                         print(prev.value, prev_ans.value, "green")
                         prev.color = GREEN
-                        curr, curr_ans = manage_stack(stack, answer_stack)
+                        if len(stack) > 1:
+                            curr, curr_ans = manage_stack(stack, answer_stack)
                         user_input = ""
                     else:
                         print(prev.value, prev_ans.value, "red")
