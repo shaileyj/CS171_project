@@ -6,36 +6,25 @@ GREEN = (0, 255, 0)
 RED = (255, 0, 0)
 WHITE = (255, 255, 255)
 
-def manage_stack(stack):
+def manage_stack(stack, answer_stack):
     if not stack:
         return
     item = stack[-1]
+    a_item = answer_stack[-1]
     if item.value is not None:
         item = stack.pop()
+        a_item = answer_stack.pop()
     while item.value is None and any(child.value is None for child in item.children):
         stack.extend(reversed(item.children))
+        answer_stack.extend(reversed(a_item.children))
         item = stack[-1]
+        a_item = answer_stack[-1]
     print([node.value for node in stack])
     item.color = YELLOW
     if stack and stack[-1] == item:
         stack.pop()
-    return item
-
-def one_step(tree):
-    if tree is None or tree.children is None:
-        return []
-    else:
-        return reversed(tree.children)
-
-def get_next_node(stack):
-    curr = stack.pop()
-    curr.color = YELLOW
-    next_nodes = one_step(curr)
-    while next_nodes[0].value is None:
-        stack.extend(next_nodes)
-        next_nodes = one_step(curr)
-    stack.extend(next_nodes)
-    return curr
+        answer_stack.pop()
+    return item, a_item
 
 def main(surface):
     board = [
@@ -46,12 +35,17 @@ def main(surface):
         [1, None, None, 2, 2]
     ]
     tree = minimax.build_tree(board, 4, "simple")
+    answer_key = minimax.build_tree(board, 4, "simple")
+    minimax.minimax(answer_key, True)
     font = pygame.font.SysFont("arial", 24)
     running = True
     user_input = ""
+
     stack = [tree, tree] #keeps track of node to "process"
-    curr = manage_stack(stack)
-    prev = curr
+    answer_stack = [answer_key, answer_key]
+    curr, curr_ans = manage_stack(stack, answer_stack)
+    prev, prev_ans = curr, curr_ans
+
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -61,12 +55,20 @@ def main(surface):
                     user_input = user_input[:-1]
                 elif event.key != pygame.K_RETURN:
                     user_input += event.unicode
-                elif stack:
+                else:
                     curr.value = user_input
                     prev = curr
-                    prev.color = WHITE
-                    curr = manage_stack(stack)
-                    user_input = ""
+                    prev_ans = curr_ans
+                    if int(prev.value) == int(prev_ans.value):
+                        print(prev.value, prev_ans.value, "green")
+                        prev.color = GREEN
+                        curr, curr_ans = manage_stack(stack, answer_stack)
+                        user_input = ""
+                    else:
+                        print(prev.value, prev_ans.value, "red")
+                        prev.color = RED
+                        user_input = ""
+
 
 
         surface.fill(minimax.WHITE)
