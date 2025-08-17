@@ -211,7 +211,7 @@ class GameWithHeuristic:
                    for row in range(BOARD_SIZE)
                    for col in range(BOARD_SIZE))
 
-    def check_captures(self, row, col):
+    def check_captures(self, row, col): #if making move at row col, then can I capture any tiles
         surrounding_tile = self.get_adjacent_positions(row, col)
         print(f"surrounding: {surrounding_tile}")
         for sr, sc in surrounding_tile:
@@ -220,10 +220,15 @@ class GameWithHeuristic:
                 print(f"opponent: {self.board[sr][sc]}")
                 opponent_surrounding = self.count_adjacent_tile(sr, sc, self.board[sr][sc])
                 print(f"Opponent:{opponent_surrounding}")
-                current_surrounding = self.count_adjacent_other_tile(sr, sc, self.current_player)
+                current_surrounding = self.count_adjacent_tile(sr, sc, self.current_player)
                 print(f"Current:{current_surrounding}")
-                if current_surrounding > opponent_surrounding:
+                if current_surrounding > 1:
                     self.board[sr][sc] = self.current_player
+                    self.player1_moves.append((sr,sc))
+                    self.player2_moves.remove((sr,sc))
+                    # self.update_player_valid_moves(self.current_player)
+                    # self.update_player_valid_moves(self.board[sr][sc])
+                    return
 
     def early_termination(self):
         if len(self.player1_valid_moves) == 0 or len(self.player2_valid_moves) == 0:
@@ -416,7 +421,7 @@ class GameWithHeuristic:
                 print(f"Copy move: {current_move} - Advanced Heuristic value: {heuristic_value}")
                 heuristic.append(heuristic_value)
 
-            copy_valid_moves.remove(current_move)
+            # copy_valid_moves.remove(current_move)
             # RESTORE original state
             self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
             self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
@@ -458,7 +463,7 @@ class GameWithHeuristic:
                 print(f"Copy move: {current_move} - Advanced Heuristic value: {heuristic_value}")
                 heuristic.append(heuristic_value)
 
-            copy_valid_moves.remove(current_move)
+            # copy_valid_moves.remove(current_move)
             # RESTORE original state
             self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
             self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
