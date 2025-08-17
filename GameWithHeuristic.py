@@ -213,21 +213,14 @@ class GameWithHeuristic:
 
     def check_captures(self, row, col): #if making move at row col, then can I capture any tiles
         surrounding_tile = self.get_adjacent_positions(row, col)
-        # print(f"surrounding: {surrounding_tile}")
         for sr, sc in surrounding_tile:
             if self.board[sr][sc] is not None and self.board[sr][sc] != self.current_player:
-                # print(f"current player: {self.current_player}")
-                # print(f"opponent: {self.board[sr][sc]}")
-                opponent_surrounding = self.count_adjacent_tile(sr, sc, self.board[sr][sc])
-                # print(f"Opponent:{opponent_surrounding}")
                 current_surrounding = self.count_adjacent_tile(sr, sc, self.current_player)
-                # print(f"Current:{current_surrounding}")
+
                 if current_surrounding > 1:
                     self.board[sr][sc] = self.current_player
                     self.player1_moves.append((sr,sc))
-                    # self.player2_moves.remove((sr,sc))
-                    # self.update_player_valid_moves(self.current_player)
-                    # self.update_player_valid_moves(self.board[sr][sc])
+
                     return
 
     def early_termination(self):
