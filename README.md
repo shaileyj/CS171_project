@@ -47,9 +47,10 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
 - Decision Path: Follow the optimal move selection
 
 ## File Structure
-**'TileCaptureGame.py'** - Interactive tile capture game
-**'minimax.py'** - Minimax tree visualization
-**'main.py'** - Decision-makeing process 
+- **'TileCaptureGame.py'** - Interactive tile capture game
+- **'minimax.py'** - Minimax tree visualization
+- **'GameWithHeuristic.py'** - Interactive game with heuristics
+- **'fill_minimax_tree.py'** - Minimax tree that can be filled out by the user
 
 
 
