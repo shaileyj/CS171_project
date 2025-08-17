@@ -291,7 +291,7 @@ def main(surface, board):
     annotations[2] = "The current child here represents one possible move Blue could take from the previous state."
     annotations[3] = "The goal of the MAX player (Red) is to find the largest achievable score if the MIN player (Blue) " \
                       "plays optimally."
-    annotations[4] = "the MAX layer keeps the largest value it can achieve"
+    annotations[4] = "the MAX layer keeps the largest score (# of red tiles) it can achieve"
     annotations[5] = "the MIN layer keeps the smallest value it can achieve"
     annotations[46] = "We have found the best move for red to take from this state (the one that guarantees a score of at least 12)"
 
@@ -339,4 +339,14 @@ def main(surface, board):
     print("minimax results:")
 
 if __name__ == "__main__":
-    pass
+    pygame.font.init()
+    surface = pygame.display.set_mode()  # initializes a window
+    surface.fill(WHITE)
+    alt_board = [
+        [1, 1, 1, 2, None],
+        [1, None, 2, 2, 2],
+        [1, None, 2, 2, 2],
+        [1, None, None, 2, 2],
+        [1, 1, 2, 2, 2]]
+
+    main(surface, alt_board)
