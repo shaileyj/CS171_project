@@ -59,18 +59,16 @@ def main(surface):
                     curr.value = user_input
                     prev = curr
                     prev_ans = curr_ans
-                    if int(prev.value) == int(prev_ans.value):
-                        print(prev.value, prev_ans.value, "green")
+                    if str(prev.value) == str(prev_ans.value):
                         prev.color = GREEN
                         if len(stack) > 1:
                             curr, curr_ans = manage_stack(stack, answer_stack)
+                        else:
+                            stack = []
                         user_input = ""
                     else:
-                        print(prev.value, prev_ans.value, "red")
                         prev.color = RED
                         user_input = ""
-
-
 
         surface.fill(minimax.WHITE)
         temp = "Your Input: " + user_input
@@ -79,6 +77,7 @@ def main(surface):
         minimax.visualize_game_tree(surface, tree, 600, 200, 2**9, 2**6)
         minimax.display_layer_labels(surface, font)
         pygame.display.flip() #update visual changes to display
+
 
 pygame.init()
 surface = pygame.display.set_mode()  # initializes a window
