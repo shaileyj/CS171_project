@@ -137,7 +137,7 @@ class GameWithHeuristic:
                             if self.board[adj_row][adj_col] is None:
                                 self.valid_move.add((adj_row, adj_col))
 
-    def count_adjacent_tile(self, x, y,player):
+    def count_adjacent_tile(self, x, y, player):
         count = 0
         surrounding = self.get_adjacent_positions(x, y)
         for sr, sc in surrounding:
@@ -145,7 +145,16 @@ class GameWithHeuristic:
                 count += 1
         return count
 
+    def count_adjacent_other_tile(self, x, y, player):
+        count = 0
+        surrounding = self.get_adjacent_positions(x, y)
+        for sr, sc in surrounding:
+            if self.board[sr][sc] is not None and self.board[sr][sc] != player:
+                count += 1
+        return count
+
     def make_move(self, row, col):
+        print(f"In make: Row: {row}, Col: {col}")
         current_valid_moves = self.get_current_valid_moves()
 
         if (row, col) not in current_valid_moves:
@@ -174,6 +183,10 @@ class GameWithHeuristic:
         # Update valid moves for both players
         self.update_all_valid_moves()
 
+        # # Choose heuristic function
+        # if self.current_player == 1 and self.board is not None:
+        #     self.choose_heuristic()
+
         # Switch player
         self.current_player = 3 - self.current_player
 
@@ -187,12 +200,8 @@ class GameWithHeuristic:
 
             if len(other_valid_moves) == 0:
                 # Neither player can move - game over
-                self.game_over = True
                 self.calculate_final_scores()
-            else:
-                # Skip to other player
-                print(f"Player {self.current_player} has no valid moves. Skipping turn.")
-                self.current_player = other_player
+                self.game_over = True
 
         return True
 
@@ -203,11 +212,16 @@ class GameWithHeuristic:
                    for col in range(BOARD_SIZE))
 
     def check_captures(self, row, col):
-        surrounding = self.get_adjacent_positions(row, col)
-        for sr, sc in surrounding:
-            if self.board[sr][sc] is not None and self.board[row][col] != self.current_player:
-                current_surrounding = self.count_adjacent_tile(sr, sc, self.current_player)
+        surrounding_tile = self.get_adjacent_positions(row, col)
+        print(f"surrounding: {surrounding_tile}")
+        for sr, sc in surrounding_tile:
+            if self.board[sr][sc] is not None and self.board[sr][sc] != self.current_player:
+                print(f"current player: {self.current_player}")
+                print(f"opponent: {self.board[sr][sc]}")
                 opponent_surrounding = self.count_adjacent_tile(sr, sc, self.board[sr][sc])
+                print(f"Opponent:{opponent_surrounding}")
+                current_surrounding = self.count_adjacent_other_tile(sr, sc, self.current_player)
+                print(f"Current:{current_surrounding}")
                 if current_surrounding > opponent_surrounding:
                     self.board[sr][sc] = self.current_player
 
@@ -243,6 +257,21 @@ class GameWithHeuristic:
                 color = self.get_tile_color(row, col)
                 pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, TILE_SIZE))
 
+                #draw heuristic value on empty tiles
+                if self.current_player == 1 and self.board[row][col] is None and (row, col) in current_valid_moves:
+                    heuristic_value = self.get_heuristic_value_for_tile(row, col)
+                    if heuristic_value is not None:
+                        # Format the heuristic value
+                        if isinstance(heuristic_value, float):
+                            text = f"{heuristic_value:.1f}"
+                        else:
+                            text = str(heuristic_value)
+
+                        # Create text surface
+                        text_surface = self.small_font.render(text, True, LIGHT_GRAY)
+                        text_rect = text_surface.get_rect()
+                        text_rect.center = (x + TILE_SIZE / 2, y + TILE_SIZE / 2)
+                        self.screen.blit(text_surface, text_rect)
         #grid
         for col in range(BOARD_SIZE+1): #vertical
             x = BOARD_OFFSET + col * TILE_SIZE
@@ -258,21 +287,39 @@ class GameWithHeuristic:
         self.screen.blit(text_surface, text_rect)
 
         if self.game_over:
-            winner = "Player 1" if self.player1_score > self.player2_score else "Player 2"
-            if self.player1_score == self.player2_score:
+            if self.player1_score > self.player2_score:
+                winner = "Player 1"
+                winner_color = RED
+                winner_text = f"Player 1 Wins!"
+            elif self.player2_score > self.player1_score:
+                winner = "Player 2"
+                winner_color = BLUE
+                winner_text = f"Player 2 Wins!"
+            else:
                 winner = "Tie"
+                winner_color = BLACK
+                winner_text = f"It's a Tie!"
+            self.early_termination()
 
-            game_over_text = f"Game Over: {winner} wins"
-            game_over_surface = self.font.render(game_over_text, True, player_color)
-            game_over_rect = game_over_surface.get_rect(center=(WINDOW_SIZE//2, WINDOW_SIZE//2))
+            # Create game over overlay
+            overlay = pygame.Surface((WINDOW_SIZE, WINDOW_SIZE))
+            overlay.set_alpha(128)  # Semi-transparent
+            overlay.fill((0, 0, 0))
+            self.screen.blit(overlay, (0, 0))
 
-            pygame.draw.rect(self.screen, WHITE, game_over_rect.inflate(20,20))
-            pygame.draw.rect(self.screen, WHITE, game_over_rect.inflate(20,20),2)
-            self.screen.blit(game_over_surface, game_over_rect)
+            # Main winner text
+            winner_surface = pygame.font.Font(None, 72).render(winner_text, True, winner_color)
+            winner_rect = winner_surface.get_rect(center=(WINDOW_SIZE // 2, WINDOW_SIZE // 2))
+
+            pygame.draw.rect(self.screen, LIGHT_GRAY, winner_rect.inflate(40, 40))
+
+            # Blit all text
+            self.screen.blit(winner_surface, winner_rect)
 
     def handle_click(self, pos):
         if self.game_over:
             print("Game is over!")
+            self.calculate_final_scores()
             return None
 
         print(f"Current player now: {self.current_player}")
@@ -288,29 +335,28 @@ class GameWithHeuristic:
         # Check if click is within board bounds
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
             print(f"Board state before: {self.board[row][col]}")
-
             # Try to make the move
             if self.make_move(row, col):
-                print(f"Move successful! Board state after: {self.board[row][col]}")
                 # Check early terminate
                 if self.early_termination():
                     self.game_over = True
                     self.calculate_final_scores()
-                    return True
+                    return False
                 else:
-                    return None
+                    print(f"Board state after: {self.board[row][col]}")
             else:
                 print(f"Move failed - tile already occupied")
                 return None
         else:
             print(f"Click outside board bounds")
-            return None
+
+        return None
 
     def choose_heuristic(self):
         heuristic_choice = int(input("Choose heuristic (0=Simple, 1=Second, 2=Third): "))
 
         if heuristic_choice == 0:
-            print(f"Simple heuristic value {simple_heuristic()}")
+            print(f"Simple heuristic value {simple_heuristic(self.board)}")
         elif heuristic_choice == 1:
             print(f"Middle heuristic value {self.second_heuristic()}")
         elif heuristic_choice == 2:
@@ -358,7 +404,7 @@ class GameWithHeuristic:
             # Ensure we're evaluating Player 1 moves
             self.current_player = 1
 
-            trial = self.make_move(*move)
+            trial = self.make_move(*current_move)
             if trial:
                 # Calculate heuristic using NEW state (after move)
                 player1_pieces = len(self.player1_moves)  # ← Use self, not copy
@@ -400,7 +446,7 @@ class GameWithHeuristic:
             # Ensure we're evaluating Player 1 moves
             self.current_player = 1
 
-            trial = self.make_move(*move)
+            trial = self.make_move(*current_move)
             if trial:
                 # Calculate heuristic using NEW state (after move)
                 player1_pieces = len(self.player1_moves)  # ← Use self, not copy
@@ -501,6 +547,56 @@ class GameWithHeuristic:
             self.last_move = original_last_move
 
         return max(capture_potential)
+
+    def get_heuristic_value_for_tile(self, row, col):
+        if self.board[row][col] is not None:
+            return None
+
+        current_valid_moves = self.get_current_valid_moves()
+        if (row, col) not in current_valid_moves:
+            return None
+
+        # Save current state
+        original_board = [row[:] for row in self.board]
+        original_player1_moves = self.player1_moves[:]
+        original_player2_moves = self.player2_moves[:]
+        original_player1_valid_moves = self.player1_valid_moves.copy()
+        original_player2_valid_moves = self.player2_valid_moves.copy()
+        original_current_player = self.current_player
+        original_last_move = self.last_move
+
+        # Simulate the move
+        temp_success = self.make_move(row, col)
+        heuristic_value = None
+
+        if temp_success:
+            if self.heuristic_choice == 0:
+                heuristic_value = simple_heuristic(self.board)
+            elif self.heuristic_choice == 1:
+                # Calculate middle heuristic for this specific move
+                player1_pieces = len(self.player1_moves)
+                player2_pieces = len(self.player2_moves)
+                player1_moves_count = len(self.player1_valid_moves)
+                player2_moves_count = len(self.player2_valid_moves)
+                heuristic_value = player1_pieces + player1_moves_count - player2_pieces - player2_moves_count
+            elif self.heuristic_choice == 2:
+                # Calculate advanced heuristic for this specific move
+                player1_pieces = len(self.player1_moves)
+                player2_pieces = len(self.player2_moves)
+                player1_moves_count = len(self.player1_valid_moves)
+                player2_moves_count = len(self.player2_valid_moves)
+                heuristic_value = (player1_pieces + player1_moves_count - player2_pieces - player2_moves_count) - self.calculate_territory() - self.calculate_thread() + self.calculate_capture_potential()
+
+        # Restore original state
+        self.board = original_board
+        self.player1_moves = original_player1_moves
+        self.player2_moves = original_player2_moves
+        self.player1_valid_moves = original_player1_valid_moves
+        self.player2_valid_moves = original_player2_valid_moves
+        self.current_player = original_current_player
+        self.last_move = original_last_move
+
+        return heuristic_value
 
 if __name__ == "__main__":
     # Get heuristic choice
