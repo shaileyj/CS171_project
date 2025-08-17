@@ -7,7 +7,7 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
 - Understanding the step-by-step evaluation process
 
 ## Part 1- Get Started
-  ## Step 1: Play the game
+  ### Step 1: Play the game
   Start by exploring the tile capture game in **'main.py'**
   - Familiarize yourself with the game mechanics
   - Understand the rules and objectives
@@ -18,7 +18,7 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
   - Players will occupy the opponents’ tiles if the number of their tiles adjacent to an opponent’s tile is greater than 1 tile.
   - Whoever has a greater number of tiles when no more empty tiles are left is the winner.
   
-  ## Step 2: Explore the Minimax Visualization
+  ### Step 2: Explore the Minimax Visualization
   Once you understand the game, examine the minimax tree visualization by clicking "->","D" or "space"
   - Watch the tree construction process step by step
   - Observe how each node represents a game state
@@ -26,11 +26,13 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
   - Notice how the tree evaluates different possible moves
 
 ## Part 2 - Interactive Portion
-  ## Step 1: Explore Heuristics
+  ### Step 1: Explore Heuristics
   - ...
 
-  ## Step 2: Fill out Minimax Tree
-  - 
+  ### Step 2: Fill out Minimax Tree
+  - The user can input the correct value for a highlighted node in the minimax tree one at a time
+  - If their input is incorrect, they can try again
+  - The user will fill out the entire minimax tree, and gain a better understanding of the minimax algorithm
 
 ## What you will learn
 - Tree Structure: ** How game states form a decision tree
