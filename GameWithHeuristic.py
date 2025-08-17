@@ -174,7 +174,6 @@ class GameWithHeuristic:
         # Update valid moves for both players
         self.update_all_valid_moves()
 
-
         # Switch player
         self.current_player = 3 - self.current_player
 
@@ -356,28 +355,30 @@ class GameWithHeuristic:
 
         for move in copy_valid_moves:
             current_move = move
-            print(f"Current valid move{move}")
-            trial = self.make_move(*move)
+            # Ensure we're evaluating Player 1 moves
+            self.current_player = 1
 
+            trial = self.make_move(*move)
             if trial:
                 # Calculate heuristic using NEW state (after move)
                 player1_pieces = len(self.player1_moves)  # ← Use self, not copy
                 player2_pieces = len(self.player2_moves)  # ← Use self, not copy
                 player1_moves_count = len(self.player1_valid_moves)  # ← Use self, not copy
-                player2_moves_count = len(self.player2_valid_moves)  # ← Use self, not copy
+                player2_moves_count = len(self.player2_valid_moves)  #
 
                 heuristic_value = player1_pieces + player1_moves_count - player2_pieces - player2_moves_count
-                print(f"At move: {current_move} - Heuristic value: {heuristic_value}")
+                print(f"Copy move: {current_move} - Advanced Heuristic value: {heuristic_value}")
                 heuristic.append(heuristic_value)
 
-        # RESTORE original state
-        self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
-        self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
-        self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
-        self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
-        self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
-        self.current_player = original_current_player
-        self.last_move = original_last_move
+            copy_valid_moves.remove(current_move)
+            # RESTORE original state
+            self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
+            self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
+            self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
+            self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
+            self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
+            self.current_player = original_current_player
+            self.last_move = original_last_move
 
         return heuristic
 
@@ -395,7 +396,7 @@ class GameWithHeuristic:
         copy_valid_moves = list(self.player1_valid_moves).copy()
 
         for move in copy_valid_moves:
-            print(*move)
+            current_move = move
             # Ensure we're evaluating Player 1 moves
             self.current_player = 1
 
@@ -408,17 +409,18 @@ class GameWithHeuristic:
                 player2_moves_count = len(self.player2_valid_moves)  #
 
                 heuristic_value = (player1_pieces+ player1_moves_count - player2_pieces - player2_moves_count) - self.calculate_territory() - self.calculate_thread() + self.calculate_capture_potential()
-                print(f"Copy move: {move} - Advanced Heuristic value: {heuristic_value}")
+                print(f"Copy move: {current_move} - Advanced Heuristic value: {heuristic_value}")
                 heuristic.append(heuristic_value)
 
-        # RESTORE original state
-        self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
-        self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
-        self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
-        self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
-        self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
-        self.current_player = original_current_player
-        self.last_move = original_last_move
+            copy_valid_moves.remove(current_move)
+            # RESTORE original state
+            self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
+            self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
+            self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
+            self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
+            self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
+            self.current_player = original_current_player
+            self.last_move = original_last_move
 
         return heuristic
 
@@ -458,15 +460,15 @@ class GameWithHeuristic:
         for move in copy_valid_moves:
             if self.check_captures(*move) is not None:
                 thread += 1
-
-        # RESTORE original state
-        self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
-        self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
-        self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
-        self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
-        self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
-        self.current_player = original_current_player
-        self.last_move = original_last_move
+            copy_valid_moves.remove(move)
+            # RESTORE original state
+            self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
+            self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
+            self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
+            self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
+            self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
+            self.current_player = original_current_player
+            self.last_move = original_last_move
 
         return thread
 
@@ -488,15 +490,15 @@ class GameWithHeuristic:
             if self.make_move(*move) is not None:
                 player2_tiles_after = len(self.player2_moves)
                 capture_potential.append(player2_tiles - player2_tiles_after)
-
-        # RESTORE original state
-        self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
-        self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
-        self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
-        self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
-        self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
-        self.current_player = original_current_player
-        self.last_move = original_last_move
+            copy_valid_moves.remove(move)
+            # RESTORE original state
+            self.board = [row[:] for row in original_board]  # ← FIX: Deep copy
+            self.player1_moves = original_player1_moves[:]  # ← FIX: Deep copy
+            self.player2_moves = original_player2_moves[:]  # ← FIX: Deep copy
+            self.player1_valid_moves = original_player1_valid_moves.copy()  # ← FIX: Deep copy
+            self.player2_valid_moves = original_player2_valid_moves.copy()  # ← FIX: Deep copy
+            self.current_player = original_current_player
+            self.last_move = original_last_move
 
         return max(capture_potential)
 
