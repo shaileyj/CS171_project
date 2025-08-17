@@ -1,7 +1,10 @@
+import copy
+
 import pygame
 import sys
 
 from minimax import simple_heuristic
+import minimax
 
 #init game
 pygame.init()
@@ -158,7 +161,7 @@ class GameWithHeuristic:
         current_valid_moves = self.get_current_valid_moves()
 
         if (row, col) not in current_valid_moves:
-            print("Invalid move")
+            # print("Invalid move")
             return False
 
         # Place piece
@@ -220,8 +223,6 @@ class GameWithHeuristic:
                 if current_surrounding > 1:
                     self.board[sr][sc] = self.current_player
                     self.player1_moves.append((sr,sc))
-
-                    return
 
     def early_termination(self):
         if len(self.player1_valid_moves) == 0 or len(self.player2_valid_moves) == 0:
@@ -333,6 +334,7 @@ class GameWithHeuristic:
         # Check if click is within board bounds
         if 0 <= row < BOARD_SIZE and 0 <= col < BOARD_SIZE:
             print(f"Board state before: {self.board[row][col]}")
+
             # Try to make the move
             if self.make_move(row, col):
                 # Check early terminate
