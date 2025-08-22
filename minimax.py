@@ -184,6 +184,16 @@ def minimax(tree, is_max):
         tree.value = min(minimax(child, not is_max) for child in tree.children)
     return tree.value
 
+def compare_tree(tree1, tree2):
+    if not tree1 and not tree2:
+        return True
+    elif not tree1 or not tree2:
+        return False
+    result = True
+    for i in range(max(len(tree1.children), len(tree2.children))):
+        result = result and compare_tree(tree1.children[i], tree2.children[i])
+    return result and tree1.value == tree2.value
+
 def ai_move(board, player, depth, heuristic):
     tree = build_tree(board, depth, heuristic, player)
     is_max = (player == PLAYER_1)
