@@ -160,7 +160,7 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
             root.value = simple_heuristic(board)
         else:
            root.value = advanced_heuristic(board)
-        print(root.value)
+        # print(root.value)
         return root
 
     other = PLAYER_2 if player == PLAYER_1 else PLAYER_1
@@ -168,7 +168,7 @@ def build_tree(board, depth, heuristic="simple", player=PLAYER_1):
     #current player can take)
     for move in children:
         root.children.append(build_tree(move, depth-1, heuristic, other))
-    print(root.value)
+    # print(root.value)
     return root
 
 def minimax(tree, is_max):
