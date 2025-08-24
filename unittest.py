@@ -1,5 +1,5 @@
 import unittest
-import Part3
+import missing_code
 import minimax
 
 class UserMinimaxTest(unittest.TestCase):
