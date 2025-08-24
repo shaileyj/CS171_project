@@ -39,7 +39,15 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
   - Fill out a minimax tree by running **'fill_minimax_tree.py'**
   - The user can input the correct value for a highlighted node in the minimax tree one at a time
   - If their input is incorrect, they can try again
-  - The user will fill out the entire minimax tree, and gain a better understanding of the minimax algorithm
+  - The user will fill out the entire minimax tree and gain a better understanding of the minimax algorithm
+
+## Part 3 - Open-Ended Challenge
+  ### Step 1: Complete the missing code on "Part3.py"
+  - Fill out the missing code of "buildtree" and "minimax" functions on the file
+  ### Step 2: Run the unit test on "test_part3.py"
+  - After you finish the code, check your result
+
+Feel free to check the solution on **'minimax.py'**
 
 ## What you will learn
 - Tree Structure: ** How game states form a decision tree
