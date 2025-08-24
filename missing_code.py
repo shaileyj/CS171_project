@@ -20,7 +20,6 @@ def build_tree(board, depth, player=PLAYER_1):
         # leaf nodes are initialized to heuristic(board)
         # fill out here
 
-
     other = PLAYER_2 if player == PLAYER_1 else PLAYER_1
     for move in children:
         # fill out here
@@ -32,6 +31,7 @@ def minimax(tree, is_max):
     """Using simple heuristic"""
     #Base case:
     if len(tree.children) == 0:
+        tree.value = simple_heuristic(tree.board)
         # fill out here
 
     #Recursive cases:
@@ -40,6 +40,7 @@ def minimax(tree, is_max):
 
     else:
         # fill out here
+
 
     return tree.value
 

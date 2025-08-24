@@ -11,8 +11,8 @@ class UserMinimaxTest(unittest.TestCase):
         [1, None, 2, 2, 2]]
         user_tree = minimax.build_tree(board, 4)
         minimax.minimax(user_tree, True)
-        answer_tree = Part3.build_tree(board, 4)
-        Part3.minimax(answer_tree, True)
+        answer_tree = missing_code.build_tree(board, 4)
+        missing_code.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree), "FAILED: Basic test " )
 
     def test_2(self): #board empty
@@ -23,8 +23,8 @@ class UserMinimaxTest(unittest.TestCase):
         [None, None, None, None, None]]
         user_tree = minimax.build_tree(board, 4)
         minimax.minimax(user_tree, True)
-        answer_tree = Part3.build_tree(board, 4)
-        Part3.minimax(answer_tree, True)
+        answer_tree = missing_code.build_tree(board, 4)
+        missing_code.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree),  "FAILED: Empty board test ")
 
     def test_3(self): #player 1 dominance
@@ -35,8 +35,8 @@ class UserMinimaxTest(unittest.TestCase):
                  [1, None, None, None, None]]
         user_tree = minimax.build_tree(board, 3)
         minimax.minimax(user_tree, True)
-        answer_tree = Part3.build_tree(board, 3)
-        Part3.minimax(answer_tree, True)
+        answer_tree = missing_code.build_tree(board, 3)
+        missing_code.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree), "FAILED: Single player dominance test ")
 
     def test_4(self): #Nearly Full
@@ -47,8 +47,8 @@ class UserMinimaxTest(unittest.TestCase):
                  [1, 1, 1, 1, 1]]
         user_tree = minimax.build_tree(board, 3)
         minimax.minimax(user_tree, True)
-        answer_tree = Part3.build_tree(board, 3)
-        Part3.minimax(answer_tree, True)
+        answer_tree = missing_code.build_tree(board, 3)
+        missing_code.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree), "FAILED: Nearly full board test ")
 
     def test_5(self): #Depth 0
@@ -59,8 +59,8 @@ class UserMinimaxTest(unittest.TestCase):
                  [1, 1, 1, 1, 1]]
         user_tree = minimax.build_tree(board, 0)
         minimax.minimax(user_tree, True)
-        answer_tree = Part3.build_tree(board, 0)
-        Part3.minimax(answer_tree, True)
+        answer_tree = missing_code.build_tree(board, 0)
+        missing_code.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree), "FAILED: Terminal test ")
 
 if __name__ == '__main__':
