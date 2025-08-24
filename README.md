@@ -43,8 +43,8 @@ The minimax algorithm is a decision-making algorithm commonly used in game theor
 
 ## Part 3 - Open-Ended Challenge
   ### Step 1: Complete the missing code on **'missing_code.py'**
-  - Fill out the missing code of "buildtree" and "minimax" functions on the file
-  ### Step 2: Run the unit test on **'unittest.py'**
+  - Fill out the missing code of "buildtree" and "minimax" functions in the file
+  ### Step 2: Run the unit test on **'test_user_code.py'**
   - After you finish the code, check your result
 
 Feel free to check the solution on **'minimax.py'**
@@ -60,7 +60,7 @@ Feel free to check the solution on **'minimax.py'**
 - **'GameWithHeuristic.py'** - Interactive game with heuristics
 - **'fill_minimax_tree.py'** - Minimax tree that can be filled out by the user
 - **'missing_code.py'** - Open challenge code that is filled out by the user
-- **'unittest.py'** - Unit test for the user's code 
+- **'test_user_code.py'** - Unit test for the user's code 
 
 
 
