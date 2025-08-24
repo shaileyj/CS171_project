@@ -109,24 +109,6 @@ def generate_moves(board, player):
     """Takes in a board state and returns all possible boards
     that can be yielded by player making one move"""
     valid_moves = []
-    #player_moves = self.player1_moves if player == 1 else self.player2_moves
-
-    # Check if board is completely empty
-    # board_empty = all(board[row][col] is None
-    #                   for row in range(BOARD_SIZE)
-    #                   for col in range(BOARD_SIZE))
-    #
-    # if board_empty:
-    #     # First move of the game - all tiles are valid
-    #     for row in range(BOARD_SIZE):
-    #         for col in range(BOARD_SIZE):
-    #             valid_moves.add((row, col))
-    # elif len(player_moves) == 0:
-    #     # This player's first move - can place anywhere empty
-    #     for row in range(BOARD_SIZE):
-    #         for col in range(BOARD_SIZE):
-    #             if self.board[row][col] is None:
-    #                 valid_moves.add((row, col))
 
     # Find all adjacent positions to ALL of this player's existing tiles
     added = set()
@@ -265,12 +247,7 @@ def draw_board(screen, board, x_offset, y_offset):
             else:
                 color = BLUE
             pygame.draw.rect(screen, color, (x, y, TILE_SIZE, TILE_SIZE))
-            # pygame.draw.rect(self.screen, color, (x, y, TILE_SIZE, BOARD_SIZE),2)
 
-            # if (row, col) in self.valid_move:
-            #     center_x = x + TILE_SIZE//2
-            #     center_y = y + TILE_SIZE//2
-            #     pygame.draw.circle(self.screen, GREEN, (center_x, center_y), TILE_SIZE//2)
     # grid
     for col in range(BOARD_SIZE + 1):  # vertical
         x = x_offset + col * TILE_SIZE

@@ -63,7 +63,5 @@ class UserMinimaxTest(unittest.TestCase):
         Part3.minimax(answer_tree, True)
         self.assertTrue(minimax.compare_tree(user_tree, answer_tree), "FAILED: Terminal test ")
 
-
-
 if __name__ == '__main__':
     unittest.main()
